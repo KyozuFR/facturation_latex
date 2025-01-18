@@ -29,7 +29,6 @@ Ce projet permet de générer rapidement des factures personnalisées en utilisa
     - "make clean" va retirer les aux et log de latex
     - "make flush" va effacer les pdf
     - "make all"/"make" va compiler les pdf et effacer les aux et log
-et voila !
 
 ## Sources
 - http://i.got.nothing.to/hack/on/gestion-des-factures-en-autoentrepreneur/
