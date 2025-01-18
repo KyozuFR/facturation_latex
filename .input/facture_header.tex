@@ -1,54 +1,45 @@
-\documentclass[french,11pt]{article}
-\usepackage{babel}
-\usepackage[T1]{fontenc}
+\documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
-\usepackage[a4paper]{geometry}
-\usepackage{units}
+\usepackage[T1]{fontenc}
+\usepackage[a4paper,margin=2cm]{geometry}
+\usepackage{siunitx}
 \usepackage{graphicx}
 \usepackage{fancyhdr}
 \usepackage{fp}
+\usepackage{xparse}
+\usepackage{ifthen} % Ajout pour gérer \ifthenelse
+\usepackage[french]{babel} % Utilisation du package 'french' sans options supplémentaires
+\usepackage{times}
 
 \def\TVA{0}	% Taux de la TVA
 
+% Variables globales
 \def\TotalHT{0}
 \def\TotalTVA{0}
 
-\newcommand{\AjouterProduit}[3]{%	Arguments : Désignation, quantité, prix unitaire HT
-	\FPround{\prix}{#3}{2}
-	\FPeval{\montant}{#2 * #3}
-	\FPround{\montant}{\montant}{2}
-	\FPadd{\TotalHT}{\TotalHT}{\montant}
+\NewDocumentCommand{\AjouterProduit}{m m m}{% Arguments : Désignation, quantité, prix unitaire HT
+	\FPeval{\prix}{round(#3, 2)}
+	\FPeval{\montant}{round(#2 * #3, 2)}
+	\FPeval{\TotalHT}{round(\TotalHT + \montant, 2)}
 	
 	\eaddto\ListeProduits{#1	&	\prix	&	#2	&	\montant	\cr}
 }
 
 \newcommand{\AfficheResultat}{%
+	\FPeval{\TotalTVA}{round(\TotalHT * \TVA / 100, 2)}
+	\FPeval{\TotalTTC}{round(\TotalHT + \TotalTVA, 2)}
+	
 	\ListeProduits
-	
-	\FPeval{\TotalTVA}{\TotalHT * \TVA / 100}
-	\FPadd{\TotalTTC}{\TotalHT}{\TotalTVA}
-	\FPround{\TotalHT}{\TotalHT}{2}
-	\FPround{\TotalTVA}{\TotalTVA}{2}
-	\FPround{\TotalTTC}{\TotalTTC}{2}
-	\global\let\TotalHT\TotalHT
-	\global\let\TotalTVA\TotalTVA
-	\global\let\TotalTTC\TotalTTC
-	
 	\cr \hline
-	%Total HT			& & &	\TotalHT	\cr
-	%TVA \TVA~\% 		& & &	\TotalTVA	\cr
-	%\hline \hline
-    % XXX /!\ POUR LES AUTOENTREPRENEURS TOUT EST FACTURÉ HT /!\
-	\textbf{Total HT}	& & &	\TotalHT \cr
-    {\small TVA non applicable, art 293 B du CGI}
+	\textbf{Total HT} & & & \TotalHT \cr
+	{\small TVA non applicable, art. 293 B du CGI}
 }
 
-\newcommand*\eaddto[2]{% version développée de \addto
+\NewDocumentCommand{\eaddto}{mm}{% Append content to a list
    \edef\tmp{#2}%
    \expandafter\addto
    \expandafter#1%
    \expandafter{\tmp}%
-} 
+}
 
 \newcommand{\ListeProduits}{}
-
